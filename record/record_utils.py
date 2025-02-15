@@ -5,60 +5,90 @@ from record.record import Record
 
 
 class RecordUtils:
-    def add_record(file_path, record: Record):
-        # Если все проверки прошли, добавляем запись в файл
+    """
+    Класс для работы с финансовыми записями.
+    """
+
+    def add_record(record: Record, file_path):
+        """
+        Добавляет новую запись в файл.
+
+        :param record: Объект Record, представляющий новую запись.
+        :param file_path: Путь к файлу для сохранения записи.
+        """
         with open(file_path, "a", newline="") as file:
             writer = csv.writer(file)
             writer.writerow(record.to_list())
 
-    def delete_record(file_path, record_id):
+    def delete_record(record_id, file_path):
+        """
+        Удаляет запись по ID.
+
+        :param file_path: Путь к файлу с записями.
+        :param record_id: ID записи для удаления.
+        """
         with open(file_path, "r") as file:
             lines = list(csv.reader(file))
 
-        # Удаляем запись с указанным ID (предполагается, что ID — это индекс записи)
         if 0 < record_id <= len(lines):
             del lines[record_id]
 
-        # Перезаписываем файл с удалением
         with open(file_path, "w", newline="") as file:
             writer = csv.writer(file)
             writer.writerows(lines)
 
-    def edit_record(file_path, record_id, updated_record: Record):
+    def edit_record(record_id, updated_record: Record, file_path):
+        """
+        Обновляет запись по ID.
+
+        :param file_path: Путь к файлу с записями.
+        :param record_id: ID записи для обновления.
+        :param updated_record: Объект Record с обновленными данными.
+        """
         with open(file_path, "r") as file:
             lines = list(csv.reader(file))
 
-        # Обновляем запись по ID
         if 0 < record_id <= len(lines):
             lines[record_id] = updated_record.to_list()
 
-        # Перезаписываем файл с обновлённой записью
         with open(file_path, "w", newline="") as file:
             writer = csv.writer(file)
             writer.writerows(lines)
 
-    def search_records(file_path, search_term):
+    def search_records(search_term, file_path):
+        """
+        Ищет записи по категории.
+
+        :param file_path: Путь к файлу с записями.
+        :param search_term: Категория для поиска.
+        :return: Список найденных записей.
+        """
         results = []
         with open(file_path, "r") as file:
             lines = csv.reader(file)
             next(lines)  # Пропускаем заголовок
             for parts in lines:
-                if search_term.lower() in parts[2].lower():  # Ищем по категории
+                if search_term.lower() in parts[2].lower():
                     results.append(parts)
         return results
 
-    def calculate_statistics(file_path, start_date, end_date):
+    def calculate_statistics(start_date, end_date, file_path):
+        """
+        Рассчитывает статистику доходов и расходов за указанный период.
+
+        :param file_path: Путь к файлу с записями.
+        :param start_date: Начальная дата периода.
+        :param end_date: Конечная дата периода.
+        :return: Словарь с суммами доходов и расходов.
+        """
         stats = {"income": 0, "expense": 0}
         with open(file_path, "r") as file:
             lines = csv.reader(file)
             next(lines)  # Пропускаем заголовок
 
-            # Проходим по всем строкам данных
             for parts in lines:
                 try:
-                    record_date = datetime.datetime.strptime(
-                        parts[1], "%Y-%m-%d"
-                    )  # Понимание формата
+                    record_date = datetime.datetime.strptime(parts[1], "%Y-%m-%d")
                     if start_date <= record_date <= end_date:
                         if parts[2] == "income":
                             stats["income"] += float(parts[5])
