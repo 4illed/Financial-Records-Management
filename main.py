@@ -1,6 +1,8 @@
 from record.record_utils import RecordUtils
 from record.record import Record
 import csv
+import datetime
+import sys
 
 def main():
 
@@ -128,7 +130,30 @@ def main():
                 
         elif choice == "5":
             # Показать статистику
-            record_utils.calculate_statistics()
+            try:
+                start_date_str = input('Введите начальную дату (YYYY-MM-DD): ').strip()
+                end_date_str = input('Введите конечную дату (YYYY-MM-DD): ').strip()
+                
+                start_date = datetime.datetime.strptime(start_date_str)
+                end_date = datetime.datetime.strptime(end_date_str)
+                file_path = input("Введите путь к файлу (по умолчанию records.csv): ")
+                if not file_path:
+                    file_path = "records.csv"
+                    
+                stats = record_utils.calculate_statistics(start_date=start_date, end_date=end_date, file_path=file_path)
+                print(f'Общая сумма доходов {stats['income']}')
+                print(f'Общая сумма расходов {stats['expense']}')
+                
+                print('Доходы по категориям')
+                for category, amount in stats['income']:
+                    print(f'Категория {category}, доход {amount}')
+                    
+                print('Расходы по категориям')
+                for category, amount in stats['expense']:
+                    print(f'Категория {category}, расход {amount}')
+            except:
+                print('Произошла ошибка при расчете статистики')
+
         elif choice == "6":
             # Выйти
             break
