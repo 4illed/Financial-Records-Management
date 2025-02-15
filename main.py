@@ -110,7 +110,22 @@ def main():
                 print('Произошла ошибка при изменении')
         elif choice == "4":
             # Поиск записей
-            record_utils.search_records()
+            try:
+                search_record = input('Введите категорию записи: ')
+                file_path = input("Введите путь к файлу (по умолчанию records.csv): ")
+                if not file_path:
+                    file_path = "records.csv"
+                results = record_utils.search_records(search_term=search_record, file_path=file_path)
+                if results:
+                    print('Записи под данной категории: ')
+                    for result in results:
+                        print(result)
+                    
+                else:
+                    print('Записи с данной категорией отсутствуют')
+            except:
+                print('Произошла ошибка при поиске записей')
+                
         elif choice == "5":
             # Показать статистику
             record_utils.calculate_statistics()
