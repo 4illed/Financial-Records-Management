@@ -9,6 +9,7 @@ class RecordUtils:
     Класс для работы с финансовыми записями.
     """
 
+    @staticmethod
     def add_record(record: Record, file_path):
         """
         Добавляет новую запись в файл.
@@ -17,26 +18,43 @@ class RecordUtils:
         :param file_path: Путь к файлу для сохранения записи.
         """
         with open(file_path, "a", newline="") as file:
-            writer = csv.writer(file)
+            writer = csv.writer(
+                file, delimiter=",", quotechar='"', quoting=csv.QUOTE_MINIMAL
+            )
             writer.writerow(record.to_list())
 
-    def delete_record(record_id, file_path):
+    @staticmethod
+    def delete_record(uuid, file_path):
         """
-        Удаляет запись по ID.
-
-        :param file_path: Путь к файлу с записями.
-        :param record_id: ID записи для удаления.
+        Удаляет запись по UUID.
         """
-        with open(file_path, "r") as file:
-            lines = list(csv.reader(file))
+        try:
+            with open(file_path, "r") as file:
+                lines = list(csv.reader(file))
 
-        if 0 < record_id <= len(lines):
-            del lines[record_id]
+            # Ищем запись по UUID
+            updated_lines = []
+            found = False
+            for line in lines:
+                if line[0] == uuid:
+                    found = True
+                else:
+                    updated_lines.append(line)
 
-        with open(file_path, "w", newline="") as file:
-            writer = csv.writer(file)
-            writer.writerows(lines)
+            if not found:
+                print(f"Ошибка: Запись с UUID {uuid} не найдена.")
+                return False
 
+            with open(file_path, "w", newline="") as file:
+                writer = csv.writer(file)
+                writer.writerows(updated_lines)
+            return True
+
+        except Exception as e:
+            print(f"Ошибка при удалении: {e}")
+            return False
+
+    @staticmethod
     def edit_record(record_id, updated_record: Record, file_path):
         """
         Обновляет запись по ID.
@@ -55,6 +73,7 @@ class RecordUtils:
             writer = csv.writer(file)
             writer.writerows(lines)
 
+    @staticmethod
     def search_records(search_term, file_path):
         """
         Ищет записи по категории.
@@ -72,6 +91,7 @@ class RecordUtils:
                     results.append(parts)
         return results
 
+    @staticmethod
     def calculate_statistics(start_date, end_date, file_path):
         """
         Рассчитывает статистику доходов и расходов за указанный период.
