@@ -123,8 +123,8 @@ def main():
                     file_path=file_path,
                 )
                 print("Запись успешно изменена")
-            except:
-                print("Произошла ошибка при изменении")
+            except Exception as e:
+                print(f"Произошла ошибка при изменении: {e}")
         elif choice == "4":
             # Поиск записей
             try:
@@ -142,8 +142,8 @@ def main():
 
                 else:
                     print("Записи с данной категорией отсутствуют")
-            except:
-                print("Произошла ошибка при поиске записей")
+            except Exception as e:
+                print(f"Произошла ошибка при поиске записей: {e}")
 
         elif choice == "5":
             # Показать статистику

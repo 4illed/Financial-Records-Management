@@ -13,7 +13,8 @@ class Record:
 
         :param record_type: Тип записи (income или expense).
         :param category: Категория записи (например, salary, food).
-        :param amount: Сумма записи (положительная для доходов, отрицательная для расходов).
+        :param amount: Сумма записи (положительная для доходов,
+            отрицательная для расходов).
         :param description: Описание записи (необязательно).
         """
         self.id = str(uuid.uuid4())

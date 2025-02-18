@@ -1,6 +1,5 @@
 import unittest
 import os
-import datetime
 from record.record_utils import RecordUtils
 from record.record import Record
 
