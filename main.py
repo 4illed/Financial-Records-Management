@@ -151,8 +151,8 @@ def main():
                 start_date_str = input("Введите начальную дату (YYYY-MM-DD): ").strip()
                 end_date_str = input("Введите конечную дату (YYYY-MM-DD): ").strip()
 
-                start_date = datetime.datetime.strptime(start_date_str)
-                end_date = datetime.datetime.strptime(end_date_str)
+                start_date = datetime.datetime.strptime(start_date_str, "%Y-%m-%d")
+                end_date = datetime.datetime.strptime(end_date_str, "%Y-%m-%d")
                 file_path = input("Введите путь к файлу (по умолчанию records.csv): ")
                 if not file_path:
                     file_path = "records.csv"
@@ -170,8 +170,9 @@ def main():
                 print("Расходы по категориям")
                 for category, amount in stats["expense"]:
                     print(f"Категория {category}, расход {amount}")
-            except:
+            except Exception as e:
                 print("Произошла ошибка при расчете статистики")
+                print(f"Ошибка: {e}", file=sys.stderr)
 
         elif choice == "6":
             # Выйти

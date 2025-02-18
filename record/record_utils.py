@@ -101,6 +101,12 @@ class RecordUtils:
         :param end_date: Конечная дата периода.
         :return: Словарь с суммами доходов и расходов.
         """
+
+        if isinstance(start_date, str):
+            start_date = datetime.datetime.strptime(start_date, "%Y-%m-%d")
+        if isinstance(end_date, str):
+            end_date = datetime.datetime.strptime(end_date, "%Y-%m-%d")
+
         stats = {"income": 0, "expense": 0}
         with open(file_path, "r") as file:
             lines = csv.reader(file)
