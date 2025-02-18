@@ -48,39 +48,39 @@ class TestRecordUtils(unittest.TestCase):
         with open(self.file_path, "r") as file:
             lines = file.readlines()
         self.assertEqual(len(lines), 2)
-        self.assertIn("1e10", lines[1])
+        self.assertIn("10000000000.0", lines[1])
 
     def test_delete_record(self):
         record = Record("income", "salary", 1000, "Test salary")
         RecordUtils.add_record(record, self.file_path)
-        RecordUtils.delete_record(1, self.file_path)
+        RecordUtils.delete_record(record.id, self.file_path)
         with open(self.file_path, "r") as file:
             lines = file.readlines()
         self.assertEqual(len(lines), 1)
 
     def test_delete_record_invalid_id(self):
-        with self.assertRaises(IndexError):
-            RecordUtils.delete_record(1, self.file_path)
+        with self.assertRaises(ValueError):
+            RecordUtils.delete_record("invalid-uuid", self.file_path)
 
     def test_edit_record(self):
         record = Record("income", "salary", 1000, "Test salary")
         RecordUtils.add_record(record, self.file_path)
         updated_record = Record("income", "salary", 2000, "Updated salary")
-        RecordUtils.edit_record(1, updated_record, self.file_path)
+        RecordUtils.edit_record(record.id, updated_record, self.file_path)
         with open(self.file_path, "r") as file:
             lines = file.readlines()
         self.assertIn("Updated salary", lines[1])
 
     def test_edit_record_invalid_id(self):
         updated_record = Record("income", "salary", 2000, "Updated salary")
-        with self.assertRaises(IndexError):
-            RecordUtils.edit_record(1, updated_record, self.file_path)
+        with self.assertRaises(ValueError):
+            RecordUtils.edit_record("invalid-uuid", updated_record, self.file_path)
 
     def test_edit_record_negative_amount(self):
         record = Record("income", "salary", 1000, "Test salary")
         RecordUtils.add_record(record, self.file_path)
         updated_record = Record("income", "salary", -2000, "Updated salary")
-        RecordUtils.edit_record(1, updated_record, self.file_path)
+        RecordUtils.edit_record(record.id, updated_record, self.file_path)
         with open(self.file_path, "r") as file:
             lines = file.readlines()
         self.assertIn("-2000", lines[1])
@@ -97,37 +97,37 @@ class TestRecordUtils(unittest.TestCase):
         self.assertEqual(len(results), 0)
 
     def test_calculate_statistics(self):
-        record1 = Record("income", "salary", 1000, "Test salary")
-        record2 = Record("expense", "food", -500, "Test food")
+        record1 = Record("income", "salary", 1000, "Test salary", "2023-06-15")
+        record2 = Record("expense", "food", 500, "Test food", "2023-06-16")
         RecordUtils.add_record(record1, self.file_path)
         RecordUtils.add_record(record2, self.file_path)
-        start_date = datetime.datetime.strptime("2023-01-01", "%Y-%m-%d")
-        end_date = datetime.datetime.strptime("2023-12-31", "%Y-%m-%d")
+        start_date = "2023-01-01"
+        end_date = "2023-12-31"
         stats = RecordUtils.calculate_statistics(start_date, end_date, self.file_path)
         self.assertEqual(stats["income"], 1000)
-        self.assertEqual(stats["expense"], -500)
+        self.assertEqual(stats["expense"], 500)
 
     def test_calculate_statistics_no_records(self):
-        start_date = datetime.datetime.strptime("2023-01-01", "%Y-%m-%d")
-        end_date = datetime.datetime.strptime("2023-12-31", "%Y-%m-%d")
+        start_date = "2023-01-01"
+        end_date = "2023-12-31"
         stats = RecordUtils.calculate_statistics(start_date, end_date, self.file_path)
         self.assertEqual(stats["income"], 0)
         self.assertEqual(stats["expense"], 0)
 
     def test_calculate_statistics_only_income(self):
-        record = Record("income", "salary", 1000, "Test salary")
+        record = Record("income", "salary", 1000, "Test salary", "2023-06-15")
         RecordUtils.add_record(record, self.file_path)
-        start_date = datetime.datetime.strptime("2023-01-01", "%Y-%m-%d")
-        end_date = datetime.datetime.strptime("2023-12-31", "%Y-%m-%d")
+        start_date = "2023-01-01"
+        end_date = "2023-12-31"
         stats = RecordUtils.calculate_statistics(start_date, end_date, self.file_path)
         self.assertEqual(stats["income"], 1000)
         self.assertEqual(stats["expense"], 0)
 
     def test_calculate_statistics_large_date_range(self):
-        record = Record("income", "salary", 1000, "Test salary")
+        record = Record("income", "salary", 1000, "Test salary", "2023-06-15")
         RecordUtils.add_record(record, self.file_path)
-        start_date = datetime.datetime.strptime("1900-01-01", "%Y-%m-%d")
-        end_date = datetime.datetime.strptime("2100-12-31", "%Y-%m-%d")
+        start_date = "1900-01-01"
+        end_date = "2100-12-31"
         stats = RecordUtils.calculate_statistics(start_date, end_date, self.file_path)
         self.assertEqual(stats["income"], 1000)
         self.assertEqual(stats["expense"], 0)
