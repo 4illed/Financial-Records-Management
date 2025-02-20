@@ -1,9 +1,8 @@
-from record.record_utils import RecordUtils
-from record.record import Record
 import csv
 import datetime
 import sys
-
+from record.record_utils import RecordUtils
+from record.record import Record
 
 def main():
 
