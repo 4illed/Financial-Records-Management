@@ -79,7 +79,7 @@ def main():
                 with open(file_path, "r") as file:
                     lines = list(csv.reader(file))
                 found = False
-                for i, line in enumerate(lines):
+                for line in lines:
                     if line[0] == record_id:
                         found = True
                         print(f"Ваша текущая запись {record_id}")
