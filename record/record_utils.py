@@ -9,6 +9,7 @@ class RecordUtils:
     Класс для работы с финансовыми записями.
     """
 
+    @staticmethod
     def add_record(record: Record, file_path):
         """
         Добавляет новую запись в файл.
@@ -16,27 +17,49 @@ class RecordUtils:
         :param record: Объект Record, представляющий новую запись.
         :param file_path: Путь к файлу для сохранения записи.
         """
+        # Validate date format
+        try:
+            datetime.datetime.strptime(record.date, "%Y-%m-%d")
+        except ValueError:
+            raise ValueError("Invalid date format")
+
         with open(file_path, "a", newline="") as file:
-            writer = csv.writer(file)
+            writer = csv.writer(
+                file, delimiter=",", quotechar='"', quoting=csv.QUOTE_MINIMAL
+            )
             writer.writerow(record.to_list())
 
-    def delete_record(record_id, file_path):
+    @staticmethod
+    def delete_record(uuid, file_path):
         """
-        Удаляет запись по ID.
-
-        :param file_path: Путь к файлу с записями.
-        :param record_id: ID записи для удаления.
+        Удаляет запись по UUID.
         """
-        with open(file_path, "r") as file:
-            lines = list(csv.reader(file))
+        try:
+            with open(file_path, "r") as file:
+                lines = list(csv.reader(file))
 
-        if 0 < record_id <= len(lines):
-            del lines[record_id]
+            # Ищем запись по UUID
+            updated_lines = []
+            found = False
+            for line in lines:
+                if line[0] == uuid:
+                    found = True
+                else:
+                    updated_lines.append(line)
 
-        with open(file_path, "w", newline="") as file:
-            writer = csv.writer(file)
-            writer.writerows(lines)
+            if not found:
+                raise ValueError(f"Ошибка: Запись с UUID {uuid} не найдена.")
 
+            with open(file_path, "w", newline="") as file:
+                writer = csv.writer(file)
+                writer.writerows(updated_lines)
+            return True
+
+        except Exception as e:
+            print(f"Ошибка при удалении: {e}")
+            raise e
+
+    @staticmethod
     def edit_record(record_id, updated_record: Record, file_path):
         """
         Обновляет запись по ID.
@@ -48,13 +71,18 @@ class RecordUtils:
         with open(file_path, "r") as file:
             lines = list(csv.reader(file))
 
-        if 0 < record_id <= len(lines):
-            lines[record_id] = updated_record.to_list()
+        for i, line in enumerate(lines):
+            if line[0] == record_id:
+                lines[i] = updated_record.to_list()
+                break
+        else:
+            raise ValueError("Record ID not found")
 
         with open(file_path, "w", newline="") as file:
             writer = csv.writer(file)
             writer.writerows(lines)
 
+    @staticmethod
     def search_records(search_term, file_path):
         """
         Ищет записи по категории.
@@ -68,10 +96,11 @@ class RecordUtils:
             lines = csv.reader(file)
             next(lines)  # Пропускаем заголовок
             for parts in lines:
-                if search_term.lower() in parts[2].lower():
+                if search_term.lower() in parts[3].lower():
                     results.append(parts)
         return results
 
+    @staticmethod
     def calculate_statistics(start_date, end_date, file_path):
         """
         Рассчитывает статистику доходов и расходов за указанный период.
@@ -81,6 +110,11 @@ class RecordUtils:
         :param end_date: Конечная дата периода.
         :return: Словарь с суммами доходов и расходов.
         """
+        if isinstance(start_date, str):
+            start_date = datetime.datetime.strptime(start_date, "%Y-%m-%d")
+        if isinstance(end_date, str):
+            end_date = datetime.datetime.strptime(end_date, "%Y-%m-%d")
+
         stats = {"income": 0, "expense": 0}
         with open(file_path, "r") as file:
             lines = csv.reader(file)
